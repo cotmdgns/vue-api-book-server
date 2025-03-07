@@ -16,7 +16,6 @@ import org.hibernate.annotations.DynamicInsert;
 @Builder
 @Entity
 @DynamicInsert
-
 public class Member {
 
     @Id
