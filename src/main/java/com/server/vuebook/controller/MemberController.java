@@ -2,11 +2,16 @@ package com.server.vuebook.controller;
 
 
 import com.server.vuebook.domain.Member;
+import com.server.vuebook.jwt.JwtUtil;
 import com.server.vuebook.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
 
 @Slf4j
 @RestController
@@ -17,27 +22,37 @@ public class MemberController {
     @Autowired
     private MemberService service;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    // 로그인
     @PostMapping("login")
-    public ResponseEntity member(@RequestBody Member member){
-        log.info("1."+member.getMemId());
-        log.info("1."+member.getMemPwd());
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("signUp")
-    public ResponseEntity signUp(@RequestBody Member member){
-        // 가져온 아이디로 데이터베이스에 다녀온 다음 값이 있다면 true로 없다면 false
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("idCheck/{id}")
-    public ResponseEntity idCheck(@PathVariable String id){
-        String checkId = service.idCheck(id);
-        Boolean checkBoo = false;
-        if(checkId == null){
-            checkBoo = true;
+    public ResponseEntity<String> member(@RequestBody Member vo){
+        Member member = service.login(vo);
+        if(member != null){
+            String token = jwtUtil.createToken(member);
+            return ResponseEntity.ok().body(token);
         }
-        return ResponseEntity.ok().body(checkBoo);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("아이디와 비밀번호가 틀렸습니다.");
+    }
+
+    // 회원가입
+    @PostMapping("signUp")
+    public ResponseEntity<String> signUp(@RequestBody Member member){
+        service.signUp(member);
+        return ResponseEntity.ok().build();
+    }
+
+    // 아이디체크
+    @PostMapping("idCheck/{id}")
+    public ResponseEntity<Boolean> idCheck(@PathVariable String id){
+        return ResponseEntity.ok().body(service.idCheck(id));
+    }
+
+    // 유저의 대한 저장 공간
+    @GetMapping("userBookSearchAPI/{data}")
+    public ResponseEntity<String> userBookSearchAPI(@PathVariable String data, @RequestHeader("Authorization") String authorization){
+        return null;
     }
 
 }

@@ -9,7 +9,8 @@ import java.util.List;
 
 public interface MemberDAO extends JpaRepository<Member,Integer> {
 
-    @Query(value = "select * from member where mem_id = :id",nativeQuery = true)
-    String idCheck(@Param("id")String id);
+    // 아이디체크
+    @Query(value = "SELECT * FROM member WHERE mem_id = :id",nativeQuery = true)
+    Member idCheck(@Param("id")String id);
 
 }
